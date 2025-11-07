@@ -122,7 +122,7 @@ public:
     CMemBitmapWrapper(libCZI::PixelType pixeltype, std::uint32_t width, std::uint32_t height)
         : pixeltype_(pixeltype), width_(width), height_(height)
     {
-        int bytes_per_pel = 0;
+        int bytes_per_pel;
         switch (pixeltype)
         {
             case libCZI::PixelType::Bgr24:
