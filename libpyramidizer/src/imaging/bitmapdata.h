@@ -2,6 +2,7 @@
 
 #include <libCZI.h>
 #include <memory>
+#include <atomic>
 #include <exception>
 
 namespace libpyramidizer
@@ -14,6 +15,7 @@ namespace libpyramidizer
         std::uint32_t width;
         std::uint32_t height;
         std::uint32_t stride;
+        std::atomic<int> lockCnt = ATOMIC_VAR_INIT(0);
     public:
         CBitmapData(libCZI::PixelType pixeltype, std::uint32_t width, std::uint32_t height) :
             CBitmapData(pixeltype, width, height, nullptr, 0)
@@ -81,11 +83,20 @@ namespace libpyramidizer
             bitmapLockInfo.ptrDataRoi = this->ptrData;
             bitmapLockInfo.stride = this->stride;
             bitmapLockInfo.size = static_cast<uint64_t>(this->stride) * this->height;
+
+            std::atomic_fetch_add(&this->lockCnt, 1);
+
             return bitmapLockInfo;
         }
 
         virtual void Unlock()
         {
+            std::atomic_fetch_sub(&this->lockCnt, 1);
+        }
+
+        /*virtual*/int GetLockCount() const
+        {
+            return std::atomic_load(&this->lockCnt);
         }
 
         static std::shared_ptr<libCZI::IBitmapData> CreateBitmapData(libCZI::PixelType pixel_type, std::uint32_t width, std::uint32_t height);

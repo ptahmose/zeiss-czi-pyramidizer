@@ -3,6 +3,7 @@
 #include <libCZI.h>
 
 #include <algorithm>
+#include <atomic>
 
 CMemOutputStream::CMemOutputStream(size_t initial_size) : ptr_(nullptr), allocated_size_(initial_size), used_size_(0)
 {
@@ -116,7 +117,7 @@ private:
     std::uint32_t width_;
     std::uint32_t height_;
     std::uint32_t stride_;
-
+    std::atomic<int> lock_count_ = ATOMIC_VAR_INIT(0);
 public:
     CMemBitmapWrapper(libCZI::PixelType pixeltype, std::uint32_t width, std::uint32_t height)
         : pixeltype_(pixeltype), width_(width), height_(height)
@@ -174,10 +175,20 @@ public:
             static_cast<uint64_t>(this->stride_) * this->height_,
         };
 
+        std::atomic_fetch_add(&this->lock_count_, 1);
+
         return bitmapLockInfo;
     }
 
-    void Unlock() override {}
+    void Unlock() override
+    {
+        std::atomic_fetch_sub(&this->lock_count_, 1);
+    }
+
+    /*virtual*/int GetLockCount() const
+    {
+        return std::atomic_load(&this->lock_count_);
+    }
 };
 
 std::shared_ptr<libCZI::IBitmapData> CreateGray8BitmapAndFill(std::uint32_t width, std::uint32_t height, uint8_t value)
