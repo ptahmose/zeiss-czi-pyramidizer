@@ -61,22 +61,22 @@ namespace libpyramidizer
             }
         }
 
-        virtual ~CBitmapData()
+        ~CBitmapData() override
         {
             std::free(this->ptrData);
         }
 
-        virtual libCZI::PixelType GetPixelType() const
+        libCZI::PixelType GetPixelType() const override
         {
             return this->pixeltype;
         }
 
-        virtual libCZI::IntSize	GetSize() const
+        libCZI::IntSize	GetSize() const override
         {
             return libCZI::IntSize{ this->width, this->height };
         }
 
-        virtual libCZI::BitmapLockInfo	Lock()
+        libCZI::BitmapLockInfo Lock() override
         {
             libCZI::BitmapLockInfo bitmapLockInfo;
             bitmapLockInfo.ptrData = this->ptrData;
@@ -89,12 +89,12 @@ namespace libpyramidizer
             return bitmapLockInfo;
         }
 
-        virtual void Unlock()
+        void Unlock() override
         {
             std::atomic_fetch_sub(&this->lockCnt, 1);
         }
 
-        /*virtual*/int GetLockCount() const
+        int GetLockCount() const override
         {
             return std::atomic_load(&this->lockCnt);
         }

@@ -8,7 +8,6 @@
 
 namespace libpyramidizer
 {
-
     class IContext;
 
     class UpperPyramidLayersPyramidizer
@@ -53,6 +52,4 @@ namespace libpyramidizer
         libCZI::IntRect ScaleByPyramidLayer(const libCZI::IntRect& rect) const;
         libCZI::IntRect ScaleByPyramidLayerMinusOne(const libCZI::IntRect& rect) const;
     };
-
-
 } // namespace libpyramidizer
