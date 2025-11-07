@@ -1,0 +1,21 @@
+.\czi-pyramidizer.exe -s E:\Data\TestData\Demo1385719_Demoset_BF.czi  -d f:\pyramidizer\test.czi -o -v 5
+
+czi-pyramidizer -s "https://pepi.ynh.fr/site/czi/Demo1385719_Demoset_BF.czi" --source-stream-class curl_http_inputstream -d test.czi -o
+
+czi-pyramidizer -s "https://pepi.ynh.fr/site/czi/Example_TMA1_Zeb1_SPRR2_Ck19_S100-1-1-1-1.czi" --source-stream-class curl_http_inputstream -d Example_TMA1.czi -o
+
+
+  "args": [
+        "-s",
+        "https://pepi.ynh.fr/site/czi/Demo1385719_Demoset_BF.czi",
+        "--source-stream-class",
+        "curl",
+        "-d",
+        "F:\\pyramidizer\\pyramid_test.czi",
+        "-o"
+      ]
+
+
+
+
+.\czi-pyramidizer.exe -s "M:\ZEN-DATA\TEST-AUTOMATION\Main\Juergen Bohl\ViewerNG\Example_TMA1_Zeb1_SPRR2_Ck19_S100-1-1-1-1.czi"  -d d:\test.czi -o
