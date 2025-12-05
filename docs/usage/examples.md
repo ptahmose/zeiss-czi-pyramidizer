@@ -73,7 +73,7 @@ Copy Attachments: 3 attachments done.
 With the switch `-n Always`, a pyramid will be created regardless of whether it is needed:
 
 ```
->czi-pyramidizer -s  /hdd/data/CZI/New-01.czi  -d /hdd/data/CZI/New-01-pyramid.czi -n Always
+>czi-pyramidizer -n Always -s /hdd/data/CZI/New-01.czi -d /hdd/data/CZI/New-01-pyramid.czi 
 Operational Parameters
 ----------------------
 

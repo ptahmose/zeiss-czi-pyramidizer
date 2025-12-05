@@ -46,10 +46,6 @@ ctest
 ```
 
 
-## 5. Next Steps
-
-- Explore `docs/usage/cli.md`
-
 ## Troubleshooting
 
 | Problem | Hint |
