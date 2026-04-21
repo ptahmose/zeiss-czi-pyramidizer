@@ -1,6 +1,7 @@
 ---
 APPLY_FIXES: none
 DISABLE:
+  - C # Disable C linters; this repo's headers are C++ headers
   - COPYPASTE # Comment to enable checks of excessive copy-pastes
   - SPELL # Comment to enable checks of spelling mistakes
 DISABLE_ERRORS_LINTERS:
