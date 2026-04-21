@@ -99,7 +99,7 @@ namespace
         auto spWriterInfo = make_shared<libCZI::CCziWriterInfo>(
             libCZI::GUID{ 0x1234567, 0x89ab, 0xcdef, {1, 2, 3, 4, 5, 6, 7, 8} },  // NOLINT
             libCZI::CDimBounds{ {libCZI::DimensionIndex::C, 0, 3} },  // set a bounds for C
-            0, static_cast<int>(mosaic_info.tiles.size() - 1));  // set a bounds M : 0<=m<=0
+            0, static_cast<int>(mosaic_info.tiles.size() - 1));  // set M bounds: 0<=m<=mosaic_info.tiles.size()-1
         writer->Create(mem_output_stream, spWriterInfo);
 
         for (int channel_no = 0; channel_no < 3; ++channel_no)
