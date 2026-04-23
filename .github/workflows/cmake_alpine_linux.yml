@@ -89,6 +89,7 @@ jobs:
           name="czi-pyramidizer-alpine-linux-${ARCHITECTURE,,}-${GITHUB_SHA:0:7}"
           mkdir "artifact/${name}"
           cp build/czi-pyramidizer/czi-pyramidizer "artifact/${name}/"
+          cp LICENSE THIRD_PARTY_LICENSES.txt README.release.md "artifact/${name}/"
           echo "artifactName=${name}" >> "$GITHUB_ENV"
           echo "artifactPath=${{github.workspace}}/artifact/${name}" >> "$GITHUB_ENV"
           '
