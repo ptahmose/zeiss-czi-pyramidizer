@@ -101,7 +101,8 @@ jobs:
           if [ -z "$version" ]; then
             version="$(git describe --always)"
           fi
-          name="czi-pyramidizer-windows-${ARCHITECTURE,,}-${version}"
+          architecture_lower="$(printf '%s' "$ARCHITECTURE" | tr '[:upper:]' '[:lower:]')"
+          name="czi-pyramidizer-windows-${architecture_lower}-${version}"
           mkdir "artifact/${name}"
           cp build/czi-pyramidizer/Release/czi-pyramidizer.exe "artifact/${name}/"
           cp LICENSE THIRD_PARTY_LICENSES.txt README.release.md "artifact/${name}/"
@@ -228,7 +229,8 @@ jobs:
           if [ -z "$version" ]; then
             version="$(git describe --always)"
           fi
-          name="czi-pyramidizer-windows-${ARCHITECTURE,,}-${version}"
+          architecture_lower="$(printf '%s' "$ARCHITECTURE" | tr '[:upper:]' '[:lower:]')"
+          name="czi-pyramidizer-windows-${architecture_lower}-${version}"
           mkdir "artifact/${name}"
           cp build/czi-pyramidizer/Release/czi-pyramidizer.exe "artifact/${name}/"
           cp LICENSE THIRD_PARTY_LICENSES.txt README.release.md "artifact/${name}/"
@@ -341,7 +343,8 @@ jobs:
           if [ -z "$version" ]; then
             version="$(git describe --always)"
           fi
-          name="czi-pyramidizer-linux-${ARCHITECTURE,,}-${version}"
+          architecture_lower="$(printf '%s' "$ARCHITECTURE" | tr '[:upper:]' '[:lower:]')"
+          name="czi-pyramidizer-linux-${architecture_lower}-${version}"
           mkdir "artifact/${name}"
           cp build/czi-pyramidizer/czi-pyramidizer "artifact/${name}/"
           cp LICENSE THIRD_PARTY_LICENSES.txt README.release.md "artifact/${name}/"
@@ -477,7 +480,8 @@ jobs:
           if [ -z "$version" ]; then
             version="$(git describe --always)"
           fi
-          name="czi-pyramidizer-alpine-linux-${ARCHITECTURE,,}-${version}"
+          architecture_lower="$(printf '%s' "$ARCHITECTURE" | tr '[:upper:]' '[:lower:]')"
+          name="czi-pyramidizer-alpine-linux-${architecture_lower}-${version}"
           mkdir "artifact/${name}"
           cp build/czi-pyramidizer/czi-pyramidizer "artifact/${name}/"
           cp LICENSE THIRD_PARTY_LICENSES.txt README.release.md "artifact/${name}/"
