@@ -129,10 +129,12 @@ jobs:
         run: |
           mkdir -p artifact dist
           # Release jobs pass an explicit tag so the package names line up with
-          # the GitHub Release assets. CI jobs fall back to git describe.
+          # the GitHub Release assets. CI jobs fall back to the current commit
+          # SHA because checkout in the Alpine container may use an archive
+          # download instead of a local .git repository.
           version="${{ inputs.release_tag }}"
           if [ -z "$version" ]; then
-            version="$(git describe --always)"
+            version="$(printf '%.7s' "$GITHUB_SHA")"
           fi
           architecture_lower="$(printf '%s' "$ARCHITECTURE" | tr '[:upper:]' '[:lower:]')"
           name="czi-pyramidizer-alpine-linux-${architecture_lower}-${version}"
