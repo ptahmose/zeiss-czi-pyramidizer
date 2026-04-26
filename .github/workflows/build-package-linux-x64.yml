@@ -48,6 +48,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libopencv-dev
+          sudo apt-get install -y libcurl4-openssl-dev
           sudo apt-get install -y libssl-dev
           vcpkg install azure-storage-blobs-cpp azure-identity-cpp
 
@@ -93,6 +94,23 @@ jobs:
           echo "artifactName=${name}" >> "$GITHUB_ENV"
           echo "artifactPath=${{ github.workspace }}/artifact/${name}" >> "$GITHUB_ENV"
 
+      - name: Collect dependency versions for SBOM
+        shell: bash
+        run: |
+          vcpkg_version() {
+            vcpkg list "$1" | awk 'NR == 1 { print $2 }'
+          }
+
+          azure_storage_version="$(vcpkg_version azure-storage-blobs-cpp)"
+          azure_identity_version="$(vcpkg_version azure-identity-cpp)"
+
+          {
+            echo "SBOM_OPENCV_VERSION=$(dpkg-query -W -f='${Version}' libopencv-dev)"
+            echo "SBOM_AZURE_SDK_VERSION=azure-storage-blobs-cpp=${azure_storage_version}; azure-identity-cpp=${azure_identity_version}"
+            echo "SBOM_CURL_VERSION=$(dpkg-query -W -f='${Version}' libcurl4-openssl-dev)"
+            echo "SBOM_OPENSSL_VERSION=$(dpkg-query -W -f='${Version}' libssl-dev)"
+          } >> "$GITHUB_ENV"
+
       - name: Generate SPDX SBOM
         shell: bash
         run: |
@@ -101,6 +119,10 @@ jobs:
             --artifact-dir "artifact/${artifactName}" \
             --artifact-name "${artifactName}" \
             --platform "linux-x64" \
+            --component-version "OpenCV=${SBOM_OPENCV_VERSION}" \
+            --component-version "Azure SDK for C++=${SBOM_AZURE_SDK_VERSION}" \
+            --component-version "curl=${SBOM_CURL_VERSION}" \
+            --component-version "OpenSSL=${SBOM_OPENSSL_VERSION}" \
             --output "artifact/${artifactName}/${artifactName}.spdx.json"
 
       - name: Generate SHA-256 checksums

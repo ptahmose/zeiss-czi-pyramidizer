@@ -112,6 +112,35 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Collect dependency versions for SBOM
+        shell: pwsh
+        run: |
+          function Get-VcpkgVersion([string]$PackageName) {
+            $line = (& vcpkg list $PackageName | Select-Object -First 1)
+            if (-not $line) {
+              throw "Unable to determine vcpkg version for $PackageName."
+            }
+            $match = [regex]::Match($line, '^\S+\s+([^\s]+)')
+            if (-not $match.Success) {
+              throw "Unexpected vcpkg list output for $PackageName: $line"
+            }
+            $match.Groups[1].Value
+          }
+
+          $triplet = "x64-windows-static"
+          $opencvVersion = Get-VcpkgVersion "opencv4:$triplet"
+          $azureStorageVersion = Get-VcpkgVersion "azure-storage-blobs-cpp:$triplet"
+          $azureIdentityVersion = Get-VcpkgVersion "azure-identity-cpp:$triplet"
+          $curlVersion = Get-VcpkgVersion "curl:$triplet"
+          $opensslVersion = Get-VcpkgVersion "openssl:$triplet"
+
+          @(
+            "SBOM_OPENCV_VERSION=$opencvVersion",
+            "SBOM_AZURE_SDK_VERSION=azure-storage-blobs-cpp=$azureStorageVersion; azure-identity-cpp=$azureIdentityVersion",
+            "SBOM_CURL_VERSION=$curlVersion",
+            "SBOM_OPENSSL_VERSION=$opensslVersion"
+          ) | Add-Content $env:GITHUB_ENV
+
       - name: Generate SPDX SBOM
         shell: pwsh
         run: |
@@ -120,6 +149,10 @@ jobs:
             --artifact-dir "artifact/$env:artifactName" `
             --artifact-name "$env:artifactName" `
             --platform "windows-x64" `
+            --component-version "OpenCV=$env:SBOM_OPENCV_VERSION" `
+            --component-version "Azure SDK for C++=$env:SBOM_AZURE_SDK_VERSION" `
+            --component-version "curl=$env:SBOM_CURL_VERSION" `
+            --component-version "OpenSSL=$env:SBOM_OPENSSL_VERSION" `
             --output "artifact/$env:artifactName/$env:artifactName.spdx.json"
 
       - name: Generate SHA-256 checksums

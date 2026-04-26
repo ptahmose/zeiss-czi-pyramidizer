@@ -46,11 +46,26 @@ def include_component(component, platform):
     return not platforms or platform in platforms
 
 
-def package_from_component(component):
+def parse_component_versions(values):
+    versions = {}
+    for value in values:
+        name, separator, version = value.partition("=")
+        if not separator or not name.strip() or not version.strip():
+            raise ValueError(
+                "Component version overrides must use the form "
+                "'Component Name=version'."
+            )
+        versions[name.strip()] = version.strip()
+    return versions
+
+
+def package_from_component(component, version_overrides):
     package = {
         "name": component["name"],
         "SPDXID": spdx_id(f"Package-{component['name']}"),
-        "versionInfo": component.get("version", "NOASSERTION"),
+        "versionInfo": version_overrides.get(
+            component["name"], component.get("version", "NOASSERTION")
+        ),
         "supplier": component.get("supplier", "NOASSERTION"),
         "downloadLocation": component.get("downloadLocation", "NOASSERTION"),
         "filesAnalyzed": False,
@@ -71,9 +86,19 @@ def main():
     parser.add_argument("--artifact-name", required=True)
     parser.add_argument("--platform", required=True)
     parser.add_argument("--output", required=True, type=pathlib.Path)
+    parser.add_argument(
+        "--component-version",
+        action="append",
+        default=[],
+        help=(
+            "Override the versionInfo for a named component, for example "
+            "'OpenCV=4.10.0'. Repeat for multiple components."
+        ),
+    )
     args = parser.parse_args()
 
     metadata = json.loads(args.metadata.read_text(encoding="utf-8"))
+    version_overrides = parse_component_versions(args.component_version)
     created = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0)
     document_id = spdx_id(f"DocumentRoot-{args.artifact_name}")
 
@@ -94,7 +119,7 @@ def main():
     ]
 
     component_packages = [
-        package_from_component(component)
+        package_from_component(component, version_overrides)
         for component in metadata["components"]
         if include_component(component, args.platform)
     ]
