@@ -115,25 +115,38 @@ jobs:
       - name: Collect dependency versions for SBOM
         shell: pwsh
         run: |
-          function Get-VcpkgVersion([string]$PackageName) {
-            $line = (& vcpkg list $PackageName | Select-Object -First 1)
+          $vcpkgList = (& vcpkg list)
+
+          function Get-VcpkgVersion([string]$PackagePrefix) {
+            # vcpkg list can decorate package names with enabled feature sets.
+            # Match by stable package-name prefix so we can still extract the
+            # concrete version that ended up in this Windows build.
+            $escapedPrefix = [regex]::Escape($PackagePrefix)
+            $line = $vcpkgList | Where-Object {
+              $_ -match "^${escapedPrefix}(\\[[^\\]]+\\])?\\s+"
+            } | Select-Object -First 1
             if (-not $line) {
-              throw "Unable to determine vcpkg version for $PackageName."
+              throw "Unable to determine vcpkg version for $PackagePrefix."
             }
-            $match = [regex]::Match($line, '^\S+\s+([^\s]+)')
+            $match = [regex]::Match(
+              $line,
+              "^${escapedPrefix}(\\[[^\\]]+\\])?\\s+([^\\s]+)"
+            )
             if (-not $match.Success) {
-              throw "Unexpected vcpkg list output for $PackageName: $line"
+              throw "Unexpected vcpkg list output for $PackagePrefix: $line"
             }
-            $match.Groups[1].Value
+            $match.Groups[2].Value
           }
 
-          $triplet = "x64-windows-static"
-          $opencvVersion = Get-VcpkgVersion "opencv4:$triplet"
-          $azureStorageVersion = Get-VcpkgVersion "azure-storage-blobs-cpp:$triplet"
-          $azureIdentityVersion = Get-VcpkgVersion "azure-identity-cpp:$triplet"
-          $curlVersion = Get-VcpkgVersion "curl:$triplet"
-          $opensslVersion = Get-VcpkgVersion "openssl:$triplet"
+          $opencvVersion = Get-VcpkgVersion "opencv4"
+          $azureStorageVersion = Get-VcpkgVersion "azure-storage-blobs-cpp"
+          $azureIdentityVersion = Get-VcpkgVersion "azure-identity-cpp"
+          $curlVersion = Get-VcpkgVersion "curl"
+          $opensslVersion = Get-VcpkgVersion "openssl"
 
+          # Persist the versions into the workflow environment so the SPDX
+          # generator can replace NOASSERTION with the versions from the actual
+          # dependency set used by this build.
           @(
             "SBOM_OPENCV_VERSION=$opencvVersion",
             "SBOM_AZURE_SDK_VERSION=azure-storage-blobs-cpp=$azureStorageVersion; azure-identity-cpp=$azureIdentityVersion",
@@ -144,6 +157,9 @@ jobs:
       - name: Generate SPDX SBOM
         shell: pwsh
         run: |
+          # Use versions observed in the installed dependency set rather than
+          # the static metadata defaults, so the Windows SBOM reflects the
+          # actual vcpkg packages that were linked for this build.
           python release/generate-spdx-sbom.py `
             --metadata release/sbom-components.json `
             --artifact-dir "artifact/$env:artifactName" `

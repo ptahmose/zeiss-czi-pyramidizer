@@ -152,12 +152,18 @@ jobs:
       - name: Collect dependency versions for SBOM
         run: |
           vcpkg_version() {
+            # Use the bootstrapped vcpkg instance from this container so the
+            # SBOM records the actual Azure/curl/OpenSSL package versions that
+            # were installed for this Alpine build.
             "${VCPKG_ROOT}/vcpkg" list "$1" | awk 'NR == 1 { print $2 }'
           }
 
           azure_storage_version="$(vcpkg_version azure-storage-blobs-cpp)"
           azure_identity_version="$(vcpkg_version azure-identity-cpp)"
 
+          # Export the observed package versions for the SPDX generator. The
+          # OpenCV version comes from the pinned workflow input, while curl and
+          # OpenSSL are taken from the vcpkg dependency set we just installed.
           {
             echo "SBOM_OPENCV_VERSION=${OPENCV_VERSION}"
             echo "SBOM_AZURE_SDK_VERSION=azure-storage-blobs-cpp=${azure_storage_version}; azure-identity-cpp=${azure_identity_version}"

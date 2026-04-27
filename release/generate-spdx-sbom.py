@@ -47,6 +47,9 @@ def include_component(component, platform):
 
 
 def parse_component_versions(values):
+    # Workflows can override versionInfo with values detected from the actual
+    # build environment so the generated SBOM reflects what was really linked,
+    # not just the conservative defaults tracked in sbom-components.json.
     versions = {}
     for value in values:
         name, separator, version = value.partition("=")
@@ -63,6 +66,9 @@ def package_from_component(component, version_overrides):
     package = {
         "name": component["name"],
         "SPDXID": spdx_id(f"Package-{component['name']}"),
+        # Prefer CI-detected versions when available. This keeps the metadata
+        # file reviewable while still allowing platform-specific builds to
+        # publish concrete versions for dependencies such as OpenCV or OpenSSL.
         "versionInfo": version_overrides.get(
             component["name"], component.get("version", "NOASSERTION")
         ),

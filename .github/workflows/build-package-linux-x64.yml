@@ -98,12 +98,18 @@ jobs:
         shell: bash
         run: |
           vcpkg_version() {
+            # vcpkg list prints "<name> <version> ..." on the first matching
+            # line. We capture the second field so the SBOM reports the
+            # concrete Azure package versions linked into this build.
             vcpkg list "$1" | awk 'NR == 1 { print $2 }'
           }
 
           azure_storage_version="$(vcpkg_version azure-storage-blobs-cpp)"
           azure_identity_version="$(vcpkg_version azure-identity-cpp)"
 
+          # Export the observed package versions for the SPDX generator. This
+          # lets the Linux SBOM use the versions from apt/vcpkg instead of the
+          # fallback NOASSERTION values in sbom-components.json.
           {
             echo "SBOM_OPENCV_VERSION=$(dpkg-query -W -f='${Version}' libopencv-dev)"
             echo "SBOM_AZURE_SDK_VERSION=azure-storage-blobs-cpp=${azure_storage_version}; azure-identity-cpp=${azure_identity_version}"
