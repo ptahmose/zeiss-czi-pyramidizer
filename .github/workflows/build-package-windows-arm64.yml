@@ -158,6 +158,7 @@ jobs:
           # actual vcpkg packages that were linked for this build.
           python release/generate-spdx-sbom.py `
             --metadata release/sbom-components.json `
+            --project-version-file CMakeLists.txt `
             --artifact-dir "artifact/$env:artifactName" `
             --artifact-name "$env:artifactName" `
             --platform "windows-arm64" `

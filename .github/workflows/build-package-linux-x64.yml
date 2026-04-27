@@ -131,6 +131,7 @@ jobs:
         run: |
           python3 release/generate-spdx-sbom.py \
             --metadata release/sbom-components.json \
+            --project-version-file CMakeLists.txt \
             --artifact-dir "artifact/${artifactName}" \
             --artifact-name "${artifactName}" \
             --platform "${RUNNER_PLATFORM}" \

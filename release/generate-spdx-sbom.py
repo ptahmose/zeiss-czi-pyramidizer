@@ -25,6 +25,11 @@ Exact platform names are useful for targets with a stable identifier, such as
 whose full identifier is detected from the build runner, such as
 ``ubuntu-24.04-x64``. This keeps the metadata accurate today while avoiding a
 future edit when the pinned Ubuntu runner is intentionally advanced.
+
+The application package version is read from ``CMakeLists.txt`` when
+``--project-version-file`` is provided. This keeps the CMake project version as
+the single source of truth while still allowing the static metadata file to
+describe supplier, license, and dependency information.
 """
 
 import argparse
@@ -64,7 +69,7 @@ def include_component(component, platform):
     at build time, for example an Ubuntu runner label derived from
     /etc/os-release.
     """
-    platforms = component.get("platforms")
+    platforms = component.get("platforms", [])
     platform_prefixes = component.get("platformPrefixes", [])
     return (
         (not platforms and not platform_prefixes)
@@ -87,6 +92,19 @@ def parse_component_versions(values):
             )
         versions[name.strip()] = version.strip()
     return versions
+
+
+def parse_cmake_project_version(path):
+    """Extract the project VERSION value from a CMakeLists.txt file."""
+    cmake = path.read_text(encoding="utf-8")
+    match = re.search(
+        r"project\s*\(\s*czi-pyramidizer\b.*?\bVERSION\s+([0-9]+(?:\.[0-9]+)*)",
+        cmake,
+        re.IGNORECASE | re.DOTALL,
+    )
+    if not match:
+        raise ValueError(f"Unable to determine czi-pyramidizer version from {path}.")
+    return match.group(1)
 
 
 def package_from_component(component, version_overrides):
@@ -120,6 +138,14 @@ def main():
     parser.add_argument("--platform", required=True)
     parser.add_argument("--output", required=True, type=pathlib.Path)
     parser.add_argument(
+        "--project-version-file",
+        type=pathlib.Path,
+        help=(
+            "Read the czi-pyramidizer version from the project VERSION in this "
+            "CMakeLists.txt file."
+        ),
+    )
+    parser.add_argument(
         "--component-version",
         action="append",
         default=[],
@@ -132,6 +158,10 @@ def main():
 
     metadata = json.loads(args.metadata.read_text(encoding="utf-8"))
     version_overrides = parse_component_versions(args.component_version)
+    if args.project_version_file:
+        version_overrides.setdefault(
+            "czi-pyramidizer", parse_cmake_project_version(args.project_version_file)
+        )
     created = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0)
     document_id = spdx_id(f"DocumentRoot-{args.artifact_name}")
 

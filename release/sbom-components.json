@@ -6,7 +6,7 @@
   "components": [
     {
       "name": "czi-pyramidizer",
-      "version": "0.1.2",
+      "version": "NOASSERTION",
       "supplier": "Organization: Carl Zeiss Microscopy GmbH",
       "downloadLocation": "https://github.com/ZEISS/czi-pyramidizer",
       "licenseDeclared": "MIT",
