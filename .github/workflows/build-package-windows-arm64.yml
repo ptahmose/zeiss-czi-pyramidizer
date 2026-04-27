@@ -140,7 +140,6 @@ jobs:
           $azureStorageVersion = Get-SbomVersion "azure-storage-blobs-cpp" "azure-storage-blobs-cpp:arm64-windows-static"
           $azureIdentityVersion = Get-SbomVersion "azure-identity-cpp" "azure-identity-cpp:arm64-windows-static"
           $curlVersion = Get-SbomVersion "curl" "curl:arm64-windows-static"
-          $opensslVersion = Get-SbomVersion "OpenSSL" "openssl:arm64-windows-static"
 
           # Persist the versions into the workflow environment so the SPDX
           # generator can replace NOASSERTION with the versions from the actual
@@ -148,8 +147,7 @@ jobs:
           @(
             "SBOM_OPENCV_VERSION=$opencvVersion",
             "SBOM_AZURE_SDK_VERSION=azure-storage-blobs-cpp=$azureStorageVersion; azure-identity-cpp=$azureIdentityVersion",
-            "SBOM_CURL_VERSION=$curlVersion",
-            "SBOM_OPENSSL_VERSION=$opensslVersion"
+            "SBOM_CURL_VERSION=$curlVersion"
           ) | Add-Content $env:GITHUB_ENV
 
       - name: Generate SPDX SBOM
@@ -166,7 +164,6 @@ jobs:
             --component-version "OpenCV=$env:SBOM_OPENCV_VERSION" `
             --component-version "Azure SDK for C++=$env:SBOM_AZURE_SDK_VERSION" `
             --component-version "curl=$env:SBOM_CURL_VERSION" `
-            --component-version "OpenSSL=$env:SBOM_OPENSSL_VERSION" `
             --output "artifact/$env:artifactName/$env:artifactName.spdx.json"
 
       - name: Generate SHA-256 checksums

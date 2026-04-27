@@ -150,8 +150,21 @@ jobs:
           vcpkg_version() {
             # Use the bootstrapped vcpkg instance from this container so the
             # SBOM records the actual Azure/curl/OpenSSL package versions that
-            # were installed for this Alpine build.
-            "${VCPKG_ROOT}/vcpkg" list "$1" | awk 'NR == 1 { print $2 }'
+            # were installed for this Alpine build. Match only the package
+            # namespec column so package descriptions cannot be mistaken for
+            # versions.
+            "${VCPKG_ROOT}/vcpkg" list "$1" |
+              awk -v package="$1" '
+                $1 ~ "^" package "(\\[[^]]+\\])?:x64-linux$" {
+                  print $2
+                  found = 1
+                  exit
+                }
+                END {
+                  if (!found) {
+                    exit 1
+                  }
+                }'
           }
 
           azure_storage_version="$(vcpkg_version azure-storage-blobs-cpp)"

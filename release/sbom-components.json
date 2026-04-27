@@ -92,7 +92,8 @@
       "licenseDeclared": "Apache-2.0",
       "licenseConcluded": "Apache-2.0",
       "copyrightText": "NOASSERTION",
-      "purpose": "LIBRARY"
+      "purpose": "LIBRARY",
+      "platforms": ["linux-x64", "alpine-linux-x64"]
     },
     {
       "name": "Iconv",
