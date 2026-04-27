@@ -31,6 +31,7 @@ env:
   BUILD_TYPE: Release
   ARCHITECTURE: x64
   OPENCV_VERSION: 4.10.0
+  VCPKG_REF: 2026.03.18
 
 jobs:
   build-package:
@@ -39,6 +40,10 @@ jobs:
       image: alpine:latest
 
     steps:
+      - name: Install checkout prerequisites
+        run: |
+          apk add --no-cache ca-certificates git tar
+
       - name: Checkout repository
         uses: actions/checkout@v6
 
@@ -67,7 +72,7 @@ jobs:
           apk add --no-cache perl gcompat zip unzip curl
           mkdir vcpkg
           cd vcpkg
-          git clone https://github.com/microsoft/vcpkg.git
+          git clone --branch "${VCPKG_REF}" --depth 1 https://github.com/microsoft/vcpkg.git
           cd vcpkg
           echo "VCPKG_ROOT=$(pwd)" >> "$GITHUB_ENV"
           VCPKGTOOLCHAINFILE="$(pwd)/scripts/buildsystems/vcpkg.cmake"
@@ -198,9 +203,12 @@ jobs:
         run: |
           cd "artifact/${artifactName}"
           checksum_file="$(mktemp)"
+          # BusyBox find emits ./file names; strip the prefix so Alpine
+          # SHA256SUMS matches the Ubuntu and Windows package format.
           find . -maxdepth 1 -type f ! -name SHA256SUMS -print0 \
             | sort -z \
-            | xargs -0 sha256sum > "$checksum_file"
+            | xargs -0 sha256sum \
+            | sed 's#  \./#  #g' > "$checksum_file"
           mv "$checksum_file" SHA256SUMS
 
       - name: Archive release package

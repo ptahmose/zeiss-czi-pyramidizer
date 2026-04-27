@@ -30,6 +30,7 @@ permissions:
 env:
   BUILD_TYPE: Release
   ARCHITECTURE: x64
+  VCPKG_REF: 2026.03.18
 
 jobs:
   build-package:
@@ -46,12 +47,18 @@ jobs:
           key: >-
             ${{
               inputs.package_archive
-              && 'release-vcpkg-x64-windows-'
-              || 'vcpkg-x64-windows-'
+              && format('release-vcpkg-x64-windows-{0}', env.VCPKG_REF)
+              || format('vcpkg-x64-windows-{0}', env.VCPKG_REF)
             }}
           restore-keys: |
-            release-vcpkg-x64-windows-
-            vcpkg-x64-windows-
+            release-vcpkg-x64-windows-${{ env.VCPKG_REF }}
+            vcpkg-x64-windows-${{ env.VCPKG_REF }}
+
+      - name: Pin vcpkg registry
+        shell: pwsh
+        run: |
+          git -C C:/vcpkg fetch --depth 1 --force origin "refs/tags/$env:VCPKG_REF:refs/tags/$env:VCPKG_REF"
+          git -C C:/vcpkg checkout --force "$env:VCPKG_REF"
 
       - name: Install dependencies
         run: |

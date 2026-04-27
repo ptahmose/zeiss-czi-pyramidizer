@@ -180,17 +180,19 @@ jobs:
             edit_prerelease_flag="--prerelease=true"
           fi
 
-          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            gh release upload "$RELEASE_TAG" release-dist/* --clobber
-            gh release edit "$RELEASE_TAG" \
+          if gh release view -- "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload --clobber -- "$RELEASE_TAG" release-dist/*
+            gh release edit \
               --notes-file release-notes.md \
               $edit_draft_flag \
-              $edit_prerelease_flag
+              $edit_prerelease_flag \
+              -- "$RELEASE_TAG"
           else
-            gh release create "$RELEASE_TAG" release-dist/* \
+            gh release create \
               --title "$RELEASE_TAG" \
               --target "$GITHUB_SHA" \
               --notes-file release-notes.md \
               $create_draft_flag \
-              $create_prerelease_flag
+              $create_prerelease_flag \
+              -- "$RELEASE_TAG" release-dist/*
           fi

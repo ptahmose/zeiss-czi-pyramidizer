@@ -30,6 +30,7 @@ permissions:
 env:
   BUILD_TYPE: Release
   ARCHITECTURE: x64
+  VCPKG_REF: 2026.03.18
 
 jobs:
   build-package:
@@ -51,6 +52,12 @@ jobs:
             echo "RUNNER_DISTRIBUTION=${ID}-${VERSION_ID}"
             echo "RUNNER_PLATFORM=${ID}-${VERSION_ID}-x64"
           } >> "$GITHUB_ENV"
+
+      - name: Pin vcpkg registry
+        shell: bash
+        run: |
+          git -C "$VCPKG_INSTALLATION_ROOT" fetch --depth 1 --force origin "refs/tags/${VCPKG_REF}:refs/tags/${VCPKG_REF}"
+          git -C "$VCPKG_INSTALLATION_ROOT" checkout --force "$VCPKG_REF"
 
       - name: Install dependencies
         shell: bash

@@ -16,6 +16,11 @@ project's continuous integration workflows:
 All release targets should build successfully and run their available tests
 before release artifacts are published.
 
+The GitHub Actions package workflows pin the vcpkg registry to a named
+upstream release tag. When the pin is advanced, the cache keys and any affected
+SBOM dependency versions should be reviewed together so a release tag remains
+rebuildable against the same dependency recipes.
+
 ## Release Assets
 
 Each GitHub release should provide one archive per supported platform. The
@@ -59,6 +64,10 @@ components, including `libCZI`, OpenCV, CLI11, GSL, RapidJSON, and other
 platform-specific dependencies.
 
 The SBOM should identify exact versions or source revisions where possible.
+It intentionally describes the package payload and excludes release workflow
+outputs such as the package-local `SHA256SUMS` file and the SBOM file itself.
+Those files are produced after or during SBOM generation, so excluding them
+keeps the SBOM inventory deterministic across clean builds and reruns.
 
 ### SBOM Next Steps
 
@@ -74,6 +83,11 @@ reviewable.
 The release should include a `SHA256SUMS` file with checksums for all published
 release assets. Users can use the checksums to verify that downloaded assets
 match the files published by the project.
+
+Each package should also include a package-local `SHA256SUMS` file for the
+files inside the extracted package directory. Checksum entries should use bare
+file names, without `./` prefixes, so verification instructions are consistent
+across Windows, Ubuntu, and Alpine release packages.
 
 ## Release Notes
 

@@ -34,3 +34,8 @@ Official GitHub releases include SHA-256 checksums and an SPDX JSON software
 bill of materials (SBOM). Verify the archive checksum against the top-level
 release `SHA256SUMS` file, then verify the extracted package contents against
 the package-local `SHA256SUMS` file before use.
+
+The package-local SBOM describes the release payload files and the direct
+dependencies knowingly included or linked into the binary. It does not list the
+package-local `SHA256SUMS` file or the SBOM file itself, because those are
+generated packaging outputs rather than input payload files.
