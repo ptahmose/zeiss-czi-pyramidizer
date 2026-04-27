@@ -40,7 +40,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Install build dependencies
         run: |
@@ -201,7 +201,7 @@ jobs:
           echo "uploadPath=${artifactPath}" >> "$GITHUB_ENV"
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ inputs.upload_name != '' && inputs.upload_name || env.artifactName }}
           path: ${{ env.uploadPath }}

@@ -8,6 +8,8 @@ This package contains a prebuilt `czi-pyramidizer` command-line executable.
 - `LICENSE`
 - `THIRD_PARTY_LICENSES.txt`
 - `README.release.md`
+- `<package-name>.spdx.json`
+- `SHA256SUMS`
 
 ## License And Third-Party Notices
 
@@ -28,6 +30,7 @@ dependency versions, build options, and relinking instructions.
 
 ## Verification
 
-Official GitHub releases should include SHA-256 checksums and an SPDX JSON
-software bill of materials (SBOM). Verify the checksum of this package against
-the published `SHA256SUMS` file before use.
+Official GitHub releases include SHA-256 checksums and an SPDX JSON software
+bill of materials (SBOM). Verify the archive checksum against the top-level
+release `SHA256SUMS` file, then verify the extracted package contents against
+the package-local `SHA256SUMS` file before use.

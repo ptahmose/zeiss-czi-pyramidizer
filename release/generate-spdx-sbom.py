@@ -33,11 +33,18 @@ def spdx_id(value):
     return f"SPDXRef-{normalized}"
 
 
-def sha256(path):
-    digest = hashlib.sha256()
+def file_checksum(path, algorithm):
+    digest = hashlib.new(algorithm.lower())
     with path.open("rb") as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
+    return digest.hexdigest()
+
+
+def package_verification_code(file_sha1s):
+    digest = hashlib.sha1()
+    for file_sha1 in sorted(file_sha1s):
+        digest.update(file_sha1.encode("ascii"))
     return digest.hexdigest()
 
 
@@ -108,21 +115,20 @@ def main():
     created = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0)
     document_id = spdx_id(f"DocumentRoot-{args.artifact_name}")
 
-    packages = [
-        {
-            "name": args.artifact_name,
-            "SPDXID": document_id,
-            "supplier": metadata["document"].get("supplier", "NOASSERTION"),
-            "downloadLocation": metadata["document"].get(
-                "downloadLocation", "NOASSERTION"
-            ),
-            "filesAnalyzed": False,
-            "licenseConcluded": "NOASSERTION",
-            "licenseDeclared": "NOASSERTION",
-            "copyrightText": "NOASSERTION",
-            "primaryPackagePurpose": "FILE",
-        }
-    ]
+    root_package = {
+        "name": args.artifact_name,
+        "SPDXID": document_id,
+        "supplier": metadata["document"].get("supplier", "NOASSERTION"),
+        "downloadLocation": metadata["document"].get(
+            "downloadLocation", "NOASSERTION"
+        ),
+        "filesAnalyzed": True,
+        "licenseConcluded": "NOASSERTION",
+        "licenseDeclared": "NOASSERTION",
+        "copyrightText": "NOASSERTION",
+        "primaryPackagePurpose": "ARCHIVE",
+    }
+    packages = [root_package]
 
     component_packages = [
         package_from_component(component, version_overrides)
@@ -140,9 +146,12 @@ def main():
         }
     ]
 
+    file_sha1s = []
     for path in sorted(args.artifact_dir.iterdir()):
         if not path.is_file() or path == args.output:
             continue
+        file_sha1 = file_checksum(path, "sha1")
+        file_sha1s.append(file_sha1)
         file_id = spdx_id(f"File-{path.name}")
         files.append(
             {
@@ -150,8 +159,12 @@ def main():
                 "SPDXID": file_id,
                 "checksums": [
                     {
+                        "algorithm": "SHA1",
+                        "checksumValue": file_sha1,
+                    },
+                    {
                         "algorithm": "SHA256",
-                        "checksumValue": sha256(path),
+                        "checksumValue": file_checksum(path, "sha256"),
                     }
                 ],
                 "licenseConcluded": "NOASSERTION",
@@ -166,6 +179,10 @@ def main():
                 "relatedSpdxElement": file_id,
             }
         )
+
+    root_package["packageVerificationCode"] = {
+        "packageVerificationCodeValue": package_verification_code(file_sha1s)
+    }
 
     app_id = spdx_id("Package-czi-pyramidizer")
     for package in component_packages:

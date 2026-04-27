@@ -24,12 +24,13 @@ archive should contain:
 - `czi-pyramidizer` or `czi-pyramidizer.exe`
 - `LICENSE`
 - `THIRD_PARTY_LICENSES.txt`
-- release notes or a release README
+- `README.release.md`
+- a package-local SPDX JSON software bill of materials (SBOM)
+- a package-local `SHA256SUMS` file
 
 The release should also provide:
 
-- an SPDX JSON software bill of materials (SBOM)
-- SHA-256 checksums for all release assets
+- a top-level `SHA256SUMS` file for all published archive assets
 - source and build information sufficient to rebuild the released binaries
 
 The repository contains a dedicated GitHub Actions release workflow in
@@ -52,9 +53,9 @@ The relinking procedure is documented in
 
 ## SBOM
 
-Each release should include one SPDX JSON SBOM for the release artifacts. The
-SBOM should describe the released binaries and their relevant build-time and
-linked components, including `libCZI`, OpenCV, CLI11, GSL, RapidJSON, and other
+Each release archive should include one package-local SPDX JSON SBOM. The SBOM
+should describe the released binary and its relevant build-time and linked
+components, including `libCZI`, OpenCV, CLI11, GSL, RapidJSON, and other
 platform-specific dependencies.
 
 The SBOM should identify exact versions or source revisions where possible.
