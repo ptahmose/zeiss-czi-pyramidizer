@@ -10,7 +10,7 @@ project's continuous integration workflows:
 
 - Windows x64
 - Windows ARM64
-- Linux x64
+- Ubuntu 24.04 x64
 - Alpine Linux x64
 
 All release targets should build successfully and run their available tests

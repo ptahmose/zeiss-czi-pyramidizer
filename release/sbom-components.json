@@ -93,7 +93,7 @@
       "licenseConcluded": "Apache-2.0",
       "copyrightText": "NOASSERTION",
       "purpose": "LIBRARY",
-      "platforms": ["linux-x64", "alpine-linux-x64"]
+      "platforms": ["ubuntu-24.04-x64", "alpine-linux-x64"]
     },
     {
       "name": "Iconv",
@@ -104,7 +104,7 @@
       "licenseConcluded": "NOASSERTION",
       "copyrightText": "NOASSERTION",
       "purpose": "LIBRARY",
-      "platforms": ["linux-x64", "alpine-linux-x64"]
+      "platforms": ["ubuntu-24.04-x64", "alpine-linux-x64"]
     }
   ]
 }

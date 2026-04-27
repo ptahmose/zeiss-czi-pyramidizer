@@ -64,7 +64,7 @@ jobs:
       package_archive: true
       upload_name: release-windows-arm64
 
-  linux-x64:
+  ubuntu-x64:
     uses: ./.github/workflows/build-package-linux-x64.yml
     with:
       release_tag: >-
@@ -74,7 +74,7 @@ jobs:
           || github.ref_name
         }}
       package_archive: true
-      upload_name: release-linux-x64
+      upload_name: release-ubuntu-x64
 
   alpine-linux-x64:
     uses: ./.github/workflows/build-package-alpine-linux-x64.yml
@@ -93,7 +93,7 @@ jobs:
     needs:
       - windows-x64
       - windows-arm64
-      - linux-x64
+      - ubuntu-x64
       - alpine-linux-x64
 
     steps:
@@ -128,7 +128,7 @@ jobs:
 
           - Windows x64
           - Windows ARM64
-          - Linux x64
+          - Ubuntu 24.04 x64
           - Alpine Linux x64
 
           Each package contains the executable together with:

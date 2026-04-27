@@ -1,8 +1,8 @@
 ---
-name: CMake-Linux-x64
+name: CMake-Ubuntu-24.04-x64
 
-# Thin CI entry point that validates the Linux x64 package build by calling the
-# shared build-package workflow.
+# Thin CI entry point that validates the Ubuntu 24.04 x64 package build by
+# calling the shared build-package workflow.
 
 'on':
   push:

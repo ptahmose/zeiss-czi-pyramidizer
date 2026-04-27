@@ -59,7 +59,7 @@ revision in that file.
 ## Platform Notes
 
 Windows x64 and Windows ARM64 builds use vcpkg static triplets for dependencies.
-Linux x64 builds use Ubuntu packages and vcpkg for selected dependencies.
+Ubuntu 24.04 x64 builds use Ubuntu packages and vcpkg for selected dependencies.
 Alpine Linux x64 builds compile OpenCV from source to support static linking.
 
 The release workflow is the source of truth for the exact CMake options,
