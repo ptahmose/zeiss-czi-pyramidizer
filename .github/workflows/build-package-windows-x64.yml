@@ -118,20 +118,29 @@ jobs:
             # list when features or triplets vary in formatting.
             $line = (& vcpkg list $PackagePrefix | Select-Object -First 1)
             if (-not $line) {
-              throw "Unable to determine vcpkg version for $PackagePrefix."
+              return $null
             }
             $parts = ($line -split '\s+') | Where-Object { $_ }
             if ($parts.Count -lt 2) {
-              throw "Unexpected vcpkg list output for $PackagePrefix: $line"
+              return $null
             }
             $parts[1]
           }
 
-          $opencvVersion = Get-VcpkgVersion "opencv4:x64-windows-static"
-          $azureStorageVersion = Get-VcpkgVersion "azure-storage-blobs-cpp:x64-windows-static"
-          $azureIdentityVersion = Get-VcpkgVersion "azure-identity-cpp:x64-windows-static"
-          $curlVersion = Get-VcpkgVersion "curl:x64-windows-static"
-          $opensslVersion = Get-VcpkgVersion "openssl:x64-windows-static"
+          function Get-SbomVersion([string]$PackageName, [string]$Namespec) {
+            $version = Get-VcpkgVersion $Namespec
+            if (-not $version) {
+              Write-Warning "Unable to determine version for $PackageName from '$Namespec'; using NOASSERTION."
+              return "NOASSERTION"
+            }
+            return $version
+          }
+
+          $opencvVersion = Get-SbomVersion "OpenCV" "opencv4:x64-windows-static"
+          $azureStorageVersion = Get-SbomVersion "azure-storage-blobs-cpp" "azure-storage-blobs-cpp:x64-windows-static"
+          $azureIdentityVersion = Get-SbomVersion "azure-identity-cpp" "azure-identity-cpp:x64-windows-static"
+          $curlVersion = Get-SbomVersion "curl" "curl:x64-windows-static"
+          $opensslVersion = Get-SbomVersion "OpenSSL" "openssl:x64-windows-static"
 
           # Persist the versions into the workflow environment so the SPDX
           # generator can replace NOASSERTION with the versions from the actual
