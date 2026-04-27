@@ -165,26 +165,30 @@ jobs:
         run: |
           # Allow repeated dry runs: if the release already exists, replace the
           # assets and update the notes instead of failing.
-          draft_flag=""
-          prerelease_flag=""
+          create_draft_flag=""
+          create_prerelease_flag=""
+          edit_draft_flag="--draft=false"
+          edit_prerelease_flag="--prerelease=false"
           if [ "$DRAFT" = "true" ]; then
-            draft_flag="--draft"
+            create_draft_flag="--draft"
+            edit_draft_flag="--draft=true"
           fi
           if [ "$PRERELEASE" = "true" ]; then
-            prerelease_flag="--prerelease"
+            create_prerelease_flag="--prerelease"
+            edit_prerelease_flag="--prerelease=true"
           fi
 
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             gh release upload "$RELEASE_TAG" release-dist/* --clobber
             gh release edit "$RELEASE_TAG" \
               --notes-file release-notes.md \
-              $draft_flag \
-              $prerelease_flag
+              $edit_draft_flag \
+              $edit_prerelease_flag
           else
             gh release create "$RELEASE_TAG" release-dist/* \
               --title "$RELEASE_TAG" \
               --target "$GITHUB_SHA" \
               --notes-file release-notes.md \
-              $draft_flag \
-              $prerelease_flag
+              $create_draft_flag \
+              $create_prerelease_flag
           fi
