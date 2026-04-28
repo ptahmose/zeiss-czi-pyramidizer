@@ -139,35 +139,37 @@ jobs:
       - name: Collect dependency versions for SBOM
         shell: pwsh
         run: |
-          function Get-VcpkgVersion([string]$PackagePrefix) {
-            # Ask vcpkg for exactly one installed package and take the first
-            # whitespace-separated token after the package namespec as the
-            # version. This avoids brittle parsing against the full package
-            # list when features or triplets vary in formatting.
-            $line = (& vcpkg list $PackagePrefix | Select-Object -First 1)
-            if (-not $line) {
-              return $null
+          function Get-VcpkgVersion([string]$PackageName, [string]$Triplet) {
+            # Query by base port name, then match the installed namespec for
+            # the requested triplet while allowing an optional feature segment
+            # such as curl[ssl]:x64-windows-static.
+            $escapedPackageName = [regex]::Escape($PackageName)
+            $escapedTriplet = [regex]::Escape($Triplet)
+            $pattern = "^{0}(?:\[[^\]]+\])?:{1}\s+(\S+)" -f $escapedPackageName, $escapedTriplet
+
+            foreach ($line in (& vcpkg list $PackageName)) {
+              if ($line -match $pattern) {
+                return $Matches[1]
+              }
             }
-            $parts = ($line -split '\s+') | Where-Object { $_ }
-            if ($parts.Count -lt 2) {
-              return $null
-            }
-            $parts[1]
+
+            return $null
           }
 
-          function Get-SbomVersion([string]$PackageName, [string]$Namespec) {
-            $version = Get-VcpkgVersion $Namespec
+          function Get-SbomVersion([string]$DisplayName, [string]$PackageName, [string]$Triplet) {
+            $version = Get-VcpkgVersion $PackageName $Triplet
             if (-not $version) {
-              Write-Warning "Unable to determine version for $PackageName from '$Namespec'; using NOASSERTION."
+              Write-Warning "Unable to determine version for $DisplayName from '$PackageName' with triplet '$Triplet'; using NOASSERTION."
               return "NOASSERTION"
             }
             return $version
           }
 
-          $opencvVersion = Get-SbomVersion "OpenCV" "opencv4:x64-windows-static"
-          $azureStorageVersion = Get-SbomVersion "azure-storage-blobs-cpp" "azure-storage-blobs-cpp:x64-windows-static"
-          $azureIdentityVersion = Get-SbomVersion "azure-identity-cpp" "azure-identity-cpp:x64-windows-static"
-          $curlVersion = Get-SbomVersion "curl" "curl:x64-windows-static"
+          $triplet = "x64-windows-static"
+          $opencvVersion = Get-SbomVersion "OpenCV" "opencv4" $triplet
+          $azureStorageVersion = Get-SbomVersion "azure-storage-blobs-cpp" "azure-storage-blobs-cpp" $triplet
+          $azureIdentityVersion = Get-SbomVersion "azure-identity-cpp" "azure-identity-cpp" $triplet
+          $curlVersion = Get-SbomVersion "curl" "curl" $triplet
 
           # Persist the versions into the workflow environment so the SPDX
           # generator can replace NOASSERTION with the versions from the actual

@@ -99,7 +99,7 @@ if (NOT CZIPYRAMIDIZER_HAVE_WIN32_API)
   find_package(Iconv REQUIRED)
 endif()
 
-find_package(OpenCV CONFIG REQUIRED ) # on Debian, install via "sudo apt install libopencv-dev"
+find_package(OpenCV CONFIG REQUIRED) # on Debian, install via "sudo apt install libopencv-dev"
 
 if (CZIPYRAMIDIZER_BUILD_UNITTESTS)
   enable_testing()
