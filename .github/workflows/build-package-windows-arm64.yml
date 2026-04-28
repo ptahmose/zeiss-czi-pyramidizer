@@ -198,9 +198,11 @@ jobs:
         run: |
           # Release jobs publish a single archive per platform. Regular CI jobs
           # upload the unpacked artifact directory instead.
+          Push-Location artifact
           Compress-Archive `
-            -Path "artifact/$env:artifactName/*" `
-            -DestinationPath "dist/$env:artifactName.zip"
+            -Path "$env:artifactName" `
+            -DestinationPath "../dist/$env:artifactName.zip"
+          Pop-Location
           echo "uploadPath=${{ github.workspace }}/dist/$env:artifactName.zip" >> $env:GITHUB_ENV
 
       - name: Set artifact upload path
