@@ -75,7 +75,7 @@ jobs:
       - name: Pin vcpkg registry
         shell: pwsh
         run: |
-          git -C C:/vcpkg fetch --depth 1 --force origin "refs/tags/$env:VCPKG_REF:refs/tags/$env:VCPKG_REF"
+          git -C C:/vcpkg fetch --depth 1 --force origin "refs/tags/${env:VCPKG_REF}:refs/tags/${env:VCPKG_REF}"
           git -C C:/vcpkg checkout --force "$env:VCPKG_REF"
 
       - name: Install dependencies
